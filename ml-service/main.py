@@ -4,6 +4,7 @@ from parser import extract_text
 from ats import ats_score
 from skills import extract_skills
 from fastapi.middleware.cors import CORSMiddleware
+from bullet_enhancer import enhance_bullet
 import os
 
 app = FastAPI()
@@ -20,7 +21,8 @@ app.add_middleware(
 class ResumeRequest(BaseModel):
     resume: str
     jd: str
-
+class BulletRequest(BaseModel):
+    bullet: str
 
 @app.get("/")
 def home():
@@ -41,7 +43,16 @@ def score(data: ResumeRequest):
         "ats_score": result
     }
 
+@app.post("/enhance-bullet")
+def enhance(data: BulletRequest):
 
+    enhanced = enhance_bullet(
+        data.bullet
+    )
+
+    return {
+        "enhanced_bullet": enhanced
+    }
 @app.post("/analyze")
 async def analyze_resume(
     file: UploadFile = File(...),
@@ -108,6 +119,7 @@ async def analyze_resume(
             suggestions.append(
         "Strong resume match for this role."
     )
+            
         return {
     "ats_score": final_score,
     "semantic_score": semantic_score,
