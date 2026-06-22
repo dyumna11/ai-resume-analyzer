@@ -97,11 +97,16 @@ async def analyze_resume(
         suggestions = []
         if missing_skills:
             suggestions.append(
-        f"Consider adding experience with {', '.join(missing_skills)}"
-    )
-        if final_score < 60:
+        f"Consider adding experience with {', '.join(missing_skills)}")
+        if semantic_score < 40:
             suggestions.append(
-        "Resume has low alignment with the job description. Consider adding more relevant projects and keywords."
+        "Resume content is not strongly aligned with the job description.")
+        if len(resume_skills) < 5:
+            suggestions.append(
+        "Add more technical skills to improve ATS matching.")
+        if final_score >= 80:
+            suggestions.append(
+        "Strong resume match for this role."
     )
         return {
     "ats_score": final_score,

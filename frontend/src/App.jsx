@@ -44,133 +44,137 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
+    <div className="min-h-screen bg-slate-100 p-8">
+  <div className="max-w-5xl mx-auto">
 
-      <h1>AI Resume Analyzer</h1>
+    <h1 className="text-4xl font-bold text-center mb-8">
+      AI Resume Analyzer
+    </h1>
 
-      <br />
+    <div className="bg-white p-6 rounded-xl shadow-md">
 
       <input
         type="file"
         accept=".pdf"
+        className="mb-4 block w-full"
         onChange={(e) => setFile(e.target.files[0])}
       />
 
-      <br />
-      <br />
-
       <textarea
         rows="8"
-        cols="80"
         placeholder="Paste Job Description"
         value={jd}
         onChange={(e) => setJd(e.target.value)}
+        className="w-full border rounded-lg p-3"
       />
 
-      <br />
-      <br />
-
-      <button onClick={handleAnalyze}>
+      <button
+        onClick={handleAnalyze}
+        className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+      >
         {loading ? "Analyzing..." : "Analyze Resume"}
       </button>
 
-      <br />
-      <br />
+    </div>
 
-      {result && (
+    {result && (
 
-<div>
+      <div className="grid md:grid-cols-2 gap-6 mt-8">
 
-  <div
-    style={{
-      border: "1px solid #ddd",
-      padding: "20px",
-      borderRadius: "10px",
-      marginBottom: "20px",
-      backgroundColor: "#f5f5f5"
-    }}
-  >
-    <h2>ATS Score</h2>
-    <h1>{result.ats_score}%</h1>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-xl font-bold mb-2">
+            ATS Score
+          </h2>
 
-    <p>
-      Semantic Score: {result.semantic_score}
-    </p>
+          <p
+  className={`text-5xl font-bold ${
+    result.ats_score >= 75
+      ? "text-green-600"
+      : result.ats_score >= 50
+      ? "text-yellow-600"
+      : "text-red-600"
+  }`}
+>
+  {result.ats_score}%
+</p>
 
-    <p>
-      Skill Match Score: {result.skill_match_score}
-    </p>
-  </div>
+          <div className="mt-4">
+            <p>
+              Semantic Score: {result.semantic_score}
+            </p>
 
-  <div
-    style={{
-      border: "1px solid #ddd",
-      padding: "20px",
-      borderRadius: "10px",
-      marginBottom: "20px"
-    }}
-  >
-    <h3>Resume Skills</h3>
+            <p>
+              Skill Match: {result.skill_match_score}
+            </p>
+          </div>
+        </div>
 
-    <ul>
-      {result.resume_skills?.map((skill, index) => (
-        <li
-          key={index}
-          style={{
-            color: "green",
-            fontWeight: "bold"
-          }}
-        >
-          {skill}
-        </li>
-      ))}
-    </ul>
-  </div>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-xl font-bold mb-4">
+            Resume Skills
+          </h2>
 
-  <div
-    style={{
-      border: "1px solid #ddd",
-      padding: "20px",
-      borderRadius: "10px",
-      marginBottom: "20px"
-    }}
-  >
-    <h3>Missing Skills</h3>
+          <div className="flex flex-wrap gap-2">
+            {result.resume_skills?.map((skill, index) => (
+              <span
+                key={index}
+                className="bg-green-100 text-green-700 px-3 py-1 rounded-full"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
 
-    <ul>
-      {result.missing_skills?.map((skill, index) => (
-        <li
-          key={index}
-          style={{
-            color: "red",
-            fontWeight: "bold"
-          }}
-        >
-          {skill}
-        </li>
-      ))}
-    </ul>
-  </div>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-xl font-bold mb-4">
+            Missing Skills
+          </h2>
 
-  <div
-    style={{
-      border: "1px solid #ddd",
-      padding: "20px",
-      borderRadius: "10px"
-    }}
-  >
-    <h3>Resume Preview</h3>
+          <div className="flex flex-wrap gap-2">
+            {result.missing_skills?.map((skill, index) => (
+              <span
+                key={index}
+                className="bg-red-100 text-red-700 px-3 py-1 rounded-full"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow">
+  <h2 className="text-xl font-bold mb-4">
+    Suggestions
+  </h2>
 
-    <p>
-      {result.resume_preview}
-    </p>
-  </div>
-
+  <ul className="space-y-2">
+    {result.suggestions?.map((item, index) => (
+      <li
+        key={index}
+        className="bg-blue-50 p-3 rounded-lg"
+      >
+        {item}
+      </li>
+    ))}
+  </ul>
 </div>
 
-      )}
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-xl font-bold mb-4">
+            Resume Preview
+          </h2>
 
-    </div>
+          <p className="text-gray-700 whitespace-pre-wrap">
+            {result.resume_preview}
+          </p>
+        </div>
+
+      </div>
+
+    )}
+
+  </div>
+</div>
   );
 }
 
