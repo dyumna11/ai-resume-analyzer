@@ -3,9 +3,18 @@ from pydantic import BaseModel
 from parser import extract_text
 from ats import ats_score
 from skills import extract_skills
+from fastapi.middleware.cors import CORSMiddleware
 import os
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ResumeRequest(BaseModel):
@@ -48,7 +57,7 @@ async def analyze_resume(
 
         resume_text = extract_text(filepath)
 
-        score = ats_score(
+        semantic_score = ats_score(
             resume_text,
             jd
         )
@@ -67,12 +76,42 @@ async def analyze_resume(
             if skill not in resume_skills
         ]
 
+        skill_match_score = 0
+
+        if len(jd_skills) > 0:
+
+            matched_skills = (
+                len(jd_skills) -
+                len(missing_skills)
+            )
+
+            skill_match_score = (
+                matched_skills / len(jd_skills)
+            ) * 100
+
+        final_score = round(
+            0.7 * skill_match_score +
+            0.3 * semantic_score,
+            2
+        )
+        suggestions = []
+        if missing_skills:
+            suggestions.append(
+        f"Consider adding experience with {', '.join(missing_skills)}"
+    )
+        if final_score < 60:
+            suggestions.append(
+        "Resume has low alignment with the job description. Consider adding more relevant projects and keywords."
+    )
         return {
-            "ats_score": score,
-            "resume_skills": resume_skills,
-            "missing_skills": missing_skills,
-            "resume_preview": resume_text[:500]
-        }
+    "ats_score": final_score,
+    "semantic_score": semantic_score,
+    "skill_match_score": round(skill_match_score, 2),
+    "resume_skills": resume_skills,
+    "missing_skills": missing_skills,
+    "suggestions": suggestions,
+    "resume_preview": resume_text[:500]
+}
 
     finally:
 
