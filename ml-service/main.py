@@ -67,7 +67,7 @@ async def analyze_resume(
             f.write(await file.read())
 
         resume_text = extract_text(filepath)
-
+      
         semantic_score = ats_score(
             resume_text,
             jd
@@ -105,6 +105,13 @@ async def analyze_resume(
             0.3 * semantic_score,
             2
         )
+        section_scores = {
+    "Skills": round(skill_match_score, 2),
+    "Projects": 85,
+    "Education": 90,
+    "Experience": 75,
+    "ATS Formatting": 80
+}
         suggestions = []
         if missing_skills:
             suggestions.append(
@@ -127,6 +134,7 @@ async def analyze_resume(
     "resume_skills": resume_skills,
     "missing_skills": missing_skills,
     "suggestions": suggestions,
+    "section_scores": section_scores,
     "resume_preview": resume_text[:500]
 }
 

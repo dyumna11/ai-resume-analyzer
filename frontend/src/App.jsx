@@ -157,6 +157,31 @@ function App() {
   />
 
 </div>
+<div className="bg-white p-6 rounded-xl shadow">
+  <h2 className="text-xl font-bold mb-4">
+    Section-wise Score
+  </h2>
+
+  {Object.entries(result.section_scores || {}).map(
+    ([section, score]) => (
+      <div key={section} className="mb-3">
+
+        <div className="flex justify-between">
+          <span>{section}</span>
+          <span>{score}%</span>
+        </div>
+
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+          <div
+            className="bg-blue-500 h-2 rounded-full"
+            style={{ width: `${score}%` }}
+          />
+        </div>
+
+      </div>
+    )
+  )}
+</div>
 
           <div className="mt-4">
             <p>
@@ -234,6 +259,7 @@ function App() {
   )}
 
 
+ 
 <div className="bg-white p-6 rounded-xl shadow mt-8">
 
   <h2 className="text-xl font-bold mb-4">
