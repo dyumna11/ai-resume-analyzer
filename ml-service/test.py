@@ -1,5 +1,6 @@
-from parser import extract_text
+import os
+from dotenv import load_dotenv
 
-text = extract_text("Dyumna Negi_Resume.pdf")
+load_dotenv()
 
-print(text[:1000])
+print(os.getenv("GEMINI_API_KEY"))

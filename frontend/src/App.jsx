@@ -193,7 +193,17 @@ function App() {
             </p>
           </div>
         </div>
-
+        <a
+  href="http://127.0.0.1:8000/download-report"
+  target="_blank"
+  rel="noreferrer"
+>
+  <button
+    className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+  >
+    Download PDF Report
+  </button>
+</a>
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-xl font-bold mb-4">
             Resume Skills
@@ -226,7 +236,9 @@ function App() {
               </span>
             ))}
           </div>
+          
         </div>
+        
         <div className="bg-white p-6 rounded-xl shadow">
   <h2 className="text-xl font-bold mb-4">
     Suggestions
@@ -242,6 +254,26 @@ function App() {
       </li>
     ))}
   </ul>
+</div>
+<div className="bg-white p-6 rounded-xl shadow">
+
+  <h2 className="text-xl font-bold mb-4">
+    Interview Questions
+  </h2>
+
+  <ul className="space-y-2">
+
+    {result.interview_questions?.map((q, index) => (
+      <li
+        key={index}
+        className="bg-purple-50 p-3 rounded-lg"
+      >
+        {q}
+      </li>
+    ))}
+
+  </ul>
+
 </div>
 
         <div className="bg-white p-6 rounded-xl shadow">

@@ -5,6 +5,9 @@ from ats import ats_score
 from skills import extract_skills
 from fastapi.middleware.cors import CORSMiddleware
 from bullet_enhancer import enhance_bullet
+from interview_questions import generate_questions
+from report_generator import create_report
+from fastapi.responses import FileResponse
 import os
 
 app = FastAPI()
@@ -42,7 +45,19 @@ def score(data: ResumeRequest):
     return {
         "ats_score": result
     }
+@app.get("/download-report")
+def download_report():
 
+    if not os.path.exists("report.pdf"):
+        return {
+            "error": "Analyze a resume first."
+        }
+
+    return FileResponse(
+        path="report.pdf",
+        filename="Resume_Report.pdf",
+        media_type="application/pdf"
+    )
 @app.post("/enhance-bullet")
 def enhance(data: BulletRequest):
 
@@ -67,7 +82,9 @@ async def analyze_resume(
             f.write(await file.read())
 
         resume_text = extract_text(filepath)
-      
+        questions = generate_questions(
+    resume_text
+)
         semantic_score = ats_score(
             resume_text,
             jd
@@ -105,6 +122,7 @@ async def analyze_resume(
             0.3 * semantic_score,
             2
         )
+ 
         section_scores = {
     "Skills": round(skill_match_score, 2),
     "Projects": 85,
@@ -126,7 +144,15 @@ async def analyze_resume(
             suggestions.append(
         "Strong resume match for this role."
     )
-            
+        create_report(
+    "report.pdf",
+    final_score,
+    section_scores,
+    missing_skills,
+    suggestions,
+    questions
+)
+    
         return {
     "ats_score": final_score,
     "semantic_score": semantic_score,
@@ -135,6 +161,7 @@ async def analyze_resume(
     "missing_skills": missing_skills,
     "suggestions": suggestions,
     "section_scores": section_scores,
+    "interview_questions": questions,
     "resume_preview": resume_text[:500]
 }
 
