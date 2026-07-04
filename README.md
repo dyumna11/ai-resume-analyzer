@@ -10,9 +10,9 @@ An AI-powered Resume Analyzer that evaluates resume–job description alignment,
 |------|--------------|
 | ![](assets/home.png) | ![](assets/score.png) |
 
-### PDF Report
-
-![](assets/report.png)
+| Suggestions | PDF Report |
+|------|--------------|
+| ![](assets/suggestions.png) | ![](assets/report.png) |
 
 ---
 
