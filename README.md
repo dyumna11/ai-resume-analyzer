@@ -45,31 +45,27 @@ An AI-powered Resume Analyzer that evaluates resume–job description alignment,
 ## System Architecture
 
 ```text
-Resume PDF
+PDF Resume
       │
       ▼
-PDF Extraction
+PDF Parser
       │
       ▼
-Resume Parsing
+Sentence Transformers
       │
       ▼
-Semantic Matching
-(Sentence Transformers)
+ATS Engine
       │
       ▼
-ATS Score Calculation
+Gemini
+ ├ Suggestions
+ ├ Interview Questions
+ ├ Bullet Enhancement
+ └ Skill Gap
       │
       ▼
-Gemini Analysis
-      │
-      ├── Skill Gap Analysis
-      ├── Resume Suggestions
-      ├── Bullet Enhancement
-      └── Interview Questions
-      │
-      ▼
-PDF Report Generation
+PDF Report
+
 ```
 
 ---
