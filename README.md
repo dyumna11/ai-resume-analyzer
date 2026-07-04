@@ -2,6 +2,19 @@
 
 An AI-powered Resume Analyzer that evaluates resume–job description alignment, generates ATS compatibility scores, identifies missing skills, and provides personalized improvement recommendations using NLP and Large Language Models.
 
+## 📸 Screenshots
+
+### Home
+![Home](assets/home.png)
+
+### ATS Score & Analysis
+![ATS Score](assets/score.png)
+
+### PDF Feedback Report
+![PDF Report](assets/report.png)
+
+---
+
 ## Features
 
 * Upload and analyze PDF resumes
