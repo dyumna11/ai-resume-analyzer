@@ -4,14 +4,15 @@ An AI-powered Resume Analyzer that evaluates resume–job description alignment,
 
 ## 📸 Screenshots
 
-### Home
-![Home](assets/home.png)
+## 📸 Screenshots
 
-### ATS Score & Analysis
-![ATS Score](assets/score.png)
+| Home | ATS Analysis |
+|------|--------------|
+| ![](assets/home.png) | ![](assets/score.png) |
 
-### PDF Feedback Report
-![PDF Report](assets/report.png)
+### PDF Report
+
+![](assets/report.png)
 
 ---
 
