@@ -1,115 +1,108 @@
+from typing import List, Dict, Any, Union
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
     PageBreak
 )
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
-from reportlab.lib.styles import (
-    getSampleStyleSheet
-)
 
 def create_report(
-    filename,
-    ats_score,
-    section_scores,
-    missing_skills,
-    suggestions,
-    questions
-):
-
+    filename: str,
+    ats_score: Union[int, float],
+    section_scores: Dict[str, Any],
+    missing_skills: List[str],
+    suggestions: List[str],
+    questions: List[str]
+) -> str:
+    """Generate a structured PDF report using ReportLab and save to filename."""
     doc = SimpleDocTemplate(filename)
-
     styles = getSampleStyleSheet()
 
     elements = []
 
+    # Title
     elements.append(
-        Paragraph(
-            "AI Resume Analysis Report",
-            styles["Title"]
-        )
+        Paragraph("AI Resume Analysis Report", styles["Title"])
     )
+    elements.append(Spacer(1, 14))
 
+    # Overall ATS Score
+    elements.append(
+        Paragraph(f"Overall ATS Score: {ats_score}%", styles["Heading2"])
+    )
     elements.append(Spacer(1, 12))
 
+    # Section-wise Scores
     elements.append(
-        Paragraph(
-            f"ATS Score: {ats_score}%",
-            styles["Heading2"]
-        )
+        Paragraph("Section-wise Breakdown", styles["Heading2"])
     )
+    elements.append(Spacer(1, 6))
 
-    elements.append(Spacer(1, 12))
-
-    elements.append(
-        Paragraph(
-            "Section-wise Scores",
-            styles["Heading2"]
-        )
-    )
-
-    for section, score in section_scores.items():
-
-        elements.append(
-            Paragraph(
-                f"{section}: {score}%",
-                styles["BodyText"]
+    if section_scores:
+        for section, score in section_scores.items():
+            elements.append(
+                Paragraph(f"<b>{section}:</b> {score}%", styles["BodyText"])
             )
-        )
+    else:
+        elements.append(Paragraph("No section breakdown available.", styles["BodyText"]))
 
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 14))
 
+    # Missing Skills
     elements.append(
-        Paragraph(
-            "Missing Skills",
-            styles["Heading2"]
-        )
+        Paragraph("Identified Missing Skills", styles["Heading2"])
     )
+    elements.append(Spacer(1, 6))
 
-    for skill in missing_skills:
-
-        elements.append(
-            Paragraph(
-                f"• {skill}",
-                styles["BodyText"]
+    if missing_skills:
+        for skill in missing_skills:
+            elements.append(
+                Paragraph(f"• {skill}", styles["BodyText"])
             )
+    else:
+        elements.append(
+            Paragraph("• No critical skills missing for this job description!", styles["BodyText"])
         )
 
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 14))
 
+    # Suggestions
     elements.append(
-        Paragraph(
-            "Suggestions",
-            styles["Heading2"]
-        )
+        Paragraph("Improvement Recommendations", styles["Heading2"])
     )
+    elements.append(Spacer(1, 6))
 
-    for item in suggestions:
-
-        elements.append(
-            Paragraph(
-                f"• {item}",
-                styles["BodyText"]
+    if suggestions:
+        for item in suggestions:
+            elements.append(
+                Paragraph(f"• {item}", styles["BodyText"])
             )
+    else:
+        elements.append(
+            Paragraph("• Resume is well-aligned with job requirements.", styles["BodyText"])
         )
 
     elements.append(PageBreak())
 
+    # Interview Questions
     elements.append(
-        Paragraph(
-            "Interview Questions",
-            styles["Heading2"]
-        )
+        Paragraph("Recommended Interview Preparation Questions", styles["Heading2"])
     )
+    elements.append(Spacer(1, 10))
 
-    for q in questions:
-
-        elements.append(
-            Paragraph(
-                q,
-                styles["BodyText"]
+    if questions:
+        for q in questions:
+            elements.append(
+                Paragraph(q, styles["BodyText"])
             )
+            elements.append(Spacer(1, 6))
+    else:
+        elements.append(
+            Paragraph("No interview questions generated.", styles["BodyText"])
         )
 
     doc.build(elements)
+    return filename

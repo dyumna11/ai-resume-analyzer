@@ -1,247 +1,223 @@
 # AI Resume Analyzer
 
-An AI-powered Resume Analyzer that evaluates resume–job description alignment, generates ATS compatibility scores, identifies missing skills, and provides personalized improvement recommendations using NLP and Large Language Models.
+An AI-powered Resume Analyzer that evaluates resume–job description alignment, generates ATS compatibility scores, identifies missing skills, and provides personalized improvement recommendations using NLP, Sentence Transformers, and Large Language Models.
 
+<<<<<<< HEAD
 ## 📸Screenshots
+=======
+---
+
+## 📸 Screenshots
+>>>>>>> 9e4ab8b (added auth, security)
 
 | Home | ATS Analysis |
 |------|--------------|
 | ![](assets/home.png) | ![](assets/score.png) |
 
+<<<<<<< HEAD
 | Suggestions | PDF Report |
 |------|--------------|
 | ![](assets/suggestions.png) | ![](assets/report.png) |
+=======
+### PDF Report
+![](assets/report.png)
+>>>>>>> 9e4ab8b (added auth, security)
 
 ---
 
-## Features
+## 🌟 Upgraded Enterprise Architecture & Key Features
 
-* Upload and analyze PDF resumes
-* Compare resumes against job descriptions
-* Generate ATS compatibility scores
-* Perform semantic resume–JD matching using Sentence Transformers
-* Identify missing skills and keywords
-* Generate section-wise resume analysis
-* AI-powered resume bullet enhancement
-* Generate role-specific interview questions
-* Export detailed PDF feedback reports
+### 1. PostgreSQL Database & SQLAlchemy ORM
+* **Users Table**: Secure user management with unique email index, bcrypt password hashing, and created timestamp.
+* **Resumes Table**: Stored resumes with user foreign keys, original filenames, secure UUID file references, extracted text, and cascading deletion.
+* **AnalysisResults Table**: Comprehensive audit trail storing job descriptions, semantic scores, skill match scores, final ATS scores, section scores, missing/matched skills, suggestions, and interview questions.
+* **Database Migrations**: Managed via **Alembic** for reproducible, version-controlled schema evolution.
+
+### 2. JWT Authentication & HttpOnly Cookie Security
+* Passwords hashed using industry-standard **bcrypt** (12 salt rounds).
+* Stateless **JWT Access Tokens** containing user ID and expiration claims without sensitive credentials.
+* Token transport via secure **HttpOnly, SameSite cookies** with fallback support for `Authorization: Bearer <token>` headers.
+* Standardized endpoints:
+  - `POST /auth/register`
+  - `POST /auth/login`
+  - `POST /auth/logout`
+  - `GET /auth/me`
+
+### 3. Ownership-Based Authorization
+* Strict ownership enforcement on every protected resource.
+* Users can only access, re-analyze, download reports for, or delete their own resumes and analysis results.
+* Returns `HTTP 401 Unauthorized` for missing/expired credentials.
+* Returns `HTTP 403 Forbidden` if an authenticated user attempts to access resources belonging to another user.
+
+### 4. Secure Resume & Report Management
+* **Strict File Validation**: Enforces PDF format via file extension, MIME type, and `%PDF-` magic byte inspection.
+* **File Size Validation**: Enforces configurable maximum file size limit (10MB).
+* **Path Traversal Protection**: Uses sanitized display filenames and UUID-based secure physical storage outside web root.
+* **Re-Analysis**: Re-analyze any previously uploaded resume against new Job Descriptions with a single click.
+* **Analysis History & Reports**: View analysis history and download dedicated PDF reports for any specific analysis.
+
+### 5. Improved Analysis & Scoring Engine
+* **Semantic Resume Matching**: Powered by Sentence Transformers (`all-MiniLM-L6-v2`) and cosine similarity.
+* **Long Text Handling & Chunking**: To prevent silent token truncation beyond the model's 256-token limit, long resumes and JDs are split into overlapping 150-word windows (40-word overlap). Chunk embeddings are mean-pooled and L2-normalized back to unit space.
+* **Deterministic ATS Scoring Formula**: Preserves the exact 70% skill match + 30% semantic score formula:
+  $$\text{Final ATS Score} = \text{round}(0.7 \times \text{Skill Match Score} + 0.3 \times \text{Semantic Score}, 2)$$
+* **Safe Empty JD Handling**: Handles empty skill lists gracefully without `ZeroDivisionError`.
+* **Modular Skill Extraction**: Extensible `SkillExtractor` architecture preserving predefined skills.
+* **Gemini LLM Integration**: Generative interview question generation and bullet enhancement.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
-
-* React.js
-* Tailwind CSS
-* Axios
+* **React.js** (Vite)
+* **Tailwind CSS**
+* **Axios** (with credentials support for HttpOnly cookies)
 
 ### Backend
-
-* FastAPI
-* Python
+* **FastAPI** (Python 3.13)
+* **SQLAlchemy ORM**
+* **PostgreSQL** & **psycopg** / **psycopg2**
+* **Alembic** (Database Migrations)
+* **PyJWT** & **Bcrypt**
 
 ### AI & NLP
-
-* Gemini API
-* Sentence Transformers
-* Scikit-learn (Cosine Similarity)
+* **Sentence Transformers** (`all-MiniLM-L6-v2`)
+* **Scikit-learn** (Cosine Similarity)
+* **Google Gemini API** (`gemini-2.5-flash`)
 
 ### Document Processing
-
-* PDFPlumber
-* ReportLab
+* **PDFPlumber**
+* **ReportLab**
 
 ---
 
-## System Architecture
+## 🗄️ Database Schema & Relationships
 
-```text
-PDF Resume
-      │
-      ▼
-PDF Parser
-      │
-      ▼
-Sentence Transformers
-      │
-      ▼
-ATS Engine
-      │
-      ▼
-Gemini
- ├ Suggestions
- ├ Interview Questions
- ├ Bullet Enhancement
- └ Skill Gap
-      │
-      ▼
-PDF Report
+```mermaid
+erDiagram
+    USERS ||--o{ RESUMES : "has many (cascades)"
+    USERS ||--o{ ANALYSIS_RESULTS : "has many (cascades)"
+    RESUMES ||--o{ ANALYSIS_RESULTS : "has many (cascades)"
 
+    USERS {
+        int id PK
+        string name
+        string email UK
+        string password_hash
+        datetime created_at
+    }
+
+    RESUMES {
+        int id PK
+        int user_id FK
+        string filename
+        datetime uploaded_at
+        text extracted_text
+        string file_path
+    }
+
+    ANALYSIS_RESULTS {
+        int id PK
+        int resume_id FK
+        int user_id FK
+        text job_description
+        float semantic_score
+        float skill_match_score
+        float final_ats_score
+        json missing_skills
+        json matched_skills
+        json suggestions
+        json section_scores
+        json interview_questions
+        datetime created_at
+    }
 ```
 
 ---
 
-## Key Features
+## 🚀 Installation & Setup
 
-### ATS Scoring
+### 1. Prerequisites
+* Python 3.10+ (tested on Python 3.13)
+* Node.js 18+ and npm
+* PostgreSQL (v14+) running locally or accessible via network
 
-The system evaluates resumes across multiple sections including:
-
-* Skills
-* Projects
-* Experience
-* Education
-* Achievements
-
-and generates an overall ATS compatibility score.
-
----
-
-### Semantic Resume Matching
-
-Unlike traditional keyword matching, the application uses Sentence Transformers to compute semantic similarity between the resume and job description.
-
-Benefits:
-
-* Understands contextual relevance
-* Detects related technologies and skills
-* Reduces dependence on exact keyword matches
-
----
-
-### Skill Gap Analysis
-
-The analyzer:
-
-* Extracts technical and soft skills
-* Identifies missing job requirements
-* Highlights improvement opportunities
-* Generates personalized recommendations
-
----
-
-### AI-Powered Resume Enhancement
-
-Using Gemini API, the platform can:
-
-* Improve resume bullet points
-* Suggest stronger action verbs
-* Quantify impact statements
-* Increase ATS friendliness
-
----
-
-### Interview Preparation
-
-Automatically generates:
-
-* Technical interview questions
-* Behavioral interview questions
-* Role-specific questions based on the target job description
-
----
-
-## Example Output
-
-### ATS Analysis
-
-```text
-ATS Score: 84%
-
-Matching Skills:
-✓ React
-✓ Node.js
-✓ MongoDB
-✓ REST APIs
-
-Missing Skills:
-✗ Docker
-✗ Kubernetes
-✗ CI/CD
-```
-
-### Generated Recommendation
-
-```text
-Add experience with containerization tools such as Docker
-and highlight deployment workflows to improve alignment
-with backend engineering roles.
-```
-
----
-
-## Installation
-
-### Clone Repository
-
+### 2. Clone Repository
 ```bash
 git clone https://github.com/dyumna11/ai-resume-analyzer.git
 cd ai-resume-analyzer
 ```
 
-### Backend Setup
-
+### 3. Database Setup
+Create a PostgreSQL database:
 ```bash
-cd backend
-
-python -m venv venv
-
-source venv/bin/activate
-# Windows
-# venv\Scripts\activate
-
-pip install -r requirements.txt
-
-uvicorn main:app --reload
+psql -U postgres -c "CREATE DATABASE resume_analyzer;"
 ```
 
-### Frontend Setup
+### 4. Backend Setup
+Navigate to `ml-service/`:
+```bash
+cd ml-service
 
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env and configure your DATABASE_URL, JWT_SECRET_KEY, and GEMINI_API_KEY
+
+# Run database migrations
+alembic upgrade head
+
+# Start FastAPI server
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+### 5. Frontend Setup
+In a new terminal window:
 ```bash
 cd frontend
 
+# Install npm packages
 npm install
 
+# Start Vite dev server
 npm run dev
 ```
+Open `http://localhost:5173` in your browser.
 
 ---
 
-## Environment Variables
+## 🧪 Testing
 
-Create a `.env` file inside the backend directory.
-
-```env
-GEMINI_API_KEY=your_api_key
+Run the automated backend test suite covering authentication, authorization, ownership isolation, PDF validation, re-analysis, and scoring:
+```bash
+cd ml-service
+python test_backend.py
+python test_scoring.py
 ```
 
 ---
 
-## Future Enhancements
+## 🔑 Environment Variables Reference
 
-* Resume version tracking
-* Multi-job comparison
-* Recruiter mode
-* LinkedIn profile analysis
-* Cover letter generation
-* Resume benchmarking against top candidates
-
----
-
-## Project Highlights
-
-* Semantic Resume–JD Matching using Sentence Transformers
-* ATS Score Generation across 5+ resume sections
-* Skill Gap Detection across 20+ skill categories
-* AI-Powered Resume Optimization
-* Automated Interview Question Generation
-* PDF Feedback Report Export
+| Variable | Description | Default |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://localhost:5432/resume_analyzer` |
+| `JWT_SECRET_KEY` | Secret key used to sign JWT tokens | Configurable in `.env` |
+| `JWT_ALGORITHM` | JWT signing algorithm | `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime in minutes | `1440` (24 hours) |
+| `COOKIE_SECURE` | Set `True` when running under HTTPS | `False` |
+| `COOKIE_SAMESITE` | Cookie SameSite policy | `lax` |
+| `GEMINI_API_KEY` | Google Gemini API Key | Required for AI generation |
+| `CORS_ORIGINS` | Allowed frontend origins (comma-separated) | `http://localhost:5173,http://127.0.0.1:5173` |
 
 ---
 
-## Author
-
-**Dyumna Negi**
-
-GitHub: https://github.com/dyumna11
+## 📄 License
+ISC License

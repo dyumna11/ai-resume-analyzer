@@ -1,8 +1,14 @@
+.env
+*.env
 ml-service/.env
 __pycache__/
 *.pyc
-.env
-ml-service/.env
 venv/
 .venv/
 node_modules/
+dist/
+storage/
+ml-service/storage/
+*.pdf
+!ml-service/Dyumna Negi_Resume.pdf
+!assets/*.png
